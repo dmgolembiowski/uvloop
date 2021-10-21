@@ -88,6 +88,29 @@ cdef class Loop:
         char _recv_buffer[UV_STREAM_RECV_BUF_SIZE]
         bint _recv_buffer_in_use
 
+        # Represents the amount of time in seconds to wait for a connection 
+        # attempt to complete, before starting the next attempt in parallel. 
+        # 
+        # This is the “Connection Attempt Delay” as defined in RFC 8305. 
+        # 
+        # A sensible default value recommended by the RFC is 0.25 (250 milliseconds),
+        # athough it could also be appropriate to set it as the return value of
+        # [`getswithinterval()`](https://docs.python.org/3.9/library/sys.html#sys.getswitchinterval) 
+        float _happy_eyeballs_delay
+        
+        # `_interleave_race_delay` controls address reordering when a host name 
+        # resolves to multiple IP addresses. 
+        #
+        # If 0 or unspecified, no reordering is done, and addresses are tried in the 
+        # order returned by getaddrinfo(). 
+        # If a positive integer is specified, the addresses are interleaved 
+        # by address family, and the given integer is interpreted as 
+        # “First Address Family Count” as defined in RFC 8305. 
+        # 
+        # The default is 0 if `_happy_eyeballs_delay` is not specified, 
+        # and 1 if it is.
+        int   _interleave_race_delay
+
         # DEBUG fields
         # True when compiled with DEBUG.
         # Used only in unittests.
